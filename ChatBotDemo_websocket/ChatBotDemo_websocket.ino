@@ -98,6 +98,7 @@ char* getUrl()
 
 void setup() {
   pinMode(USER_BUTTON_A, INPUT);
+  pinMode(USER_BUTTON_B, INPUT);
   if (WiFi.begin() == WL_CONNECTED)
   {
     printf("connected\r\n");
@@ -110,11 +111,22 @@ void setup() {
   printf("connect_state %d\r\n", connect_state);
 }
 
+bool isClose = false;
+
 void loop() {
+  if (isClose) return;
   // put your main code here, to run repeatedly:
   printf("you can start a new question now\r\n");
+  while(digitalRead(USER_BUTTON_A) == HIGH) {
+    if (digitalRead(USER_BUTTON_B) == LOW) {
+      (*websocket).close();
+      isClose = true;
+      return;
+    } 
+    (*websocket).heartBeat();
+    delay(100);
+  }
   (*websocket).send("pcmstart", 4, 0x02);
-  while(digitalRead(USER_BUTTON_A) == HIGH) delay(10);
   record();
   while(digitalRead(USER_BUTTON_A) == LOW || ringBuffer.use() > 0)
   {

@@ -251,7 +251,7 @@ bool Websocket::read(char * message, int * length, unsigned char * opcode, bool 
             printf("recv not 1 %d %d\r\n", res, *opcode);
             return false;
         }
-        if (first && ((*opcode & 0x7F) == 0x01 || (*opcode & 0x7F) == 0x02))
+        if (first && ((*opcode & 0x7F) == 0x01 || (*opcode & 0x7F) == 0x02 || (*opcode & 0x7F) == 0x0A || (*opcode & 0x7F) == 0x08))
             break;
         if (!first && (*opcode & 0x7F) == 0x00)
             break;
@@ -298,8 +298,22 @@ bool Websocket::read(char * message, int * length, unsigned char * opcode, bool 
     return true;
 }
 
+void Websocket::heartBeat()
+{
+    char s[125];
+    int len = 0;
+    unsigned char opcode = 0;
+    send("hello", 5, 0x89, 0);
+    read((char *)s, &len, &opcode, true);
+}
+
 bool Websocket::close() {
 
+    char s[125];
+    int len = 0;
+    unsigned char opcode = 0;
+    send("1000", 4, 0x88, 0);
+    read((char *)s, &len, &opcode, true);
     int ret = socket.close();
     if (ret < 0) {
         ERR("Could not disconnect");

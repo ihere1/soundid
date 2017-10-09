@@ -112,6 +112,8 @@ class Websocket
         */
         char* getPath();
 
+        void heartBeat();
+
     private:
         void fillFields(char * url);
         int parseURL(const char* url, char* scheme, size_t maxSchemeLen, char* host, size_t maxHostLen, uint16_t* port, char* path, size_t maxPathLen); //Parse URL
